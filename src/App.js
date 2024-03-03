@@ -11,18 +11,20 @@ import RemoveFavorite from "./components/RemoveFavorite";
 const App = () => {
   const [movies, setMovies] = useState([]);
   const [searchMovie, setSearchMovie] = useState("batman");
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState(
+    !localStorage.getItem("movies-app-data")
+      ? []
+      : JSON.parse(localStorage.getItem("movies-app-data"))
+  );
 
   if (searchMovie.length === 0) {
     setSearchMovie("batman");
   }
 
-
   //Remove Favorites Function//
 
   const handleRemoveFavorites = (movie) => {
     const index = favorites.findIndex((item) => item.imdbID === movie.imdbID);
-    console.log(index);
 
     if (index > -1) {
       const removedFavorites = favorites.filter(
@@ -51,13 +53,13 @@ const App = () => {
     }
   };
 
-  console.log(favorites);
-
   useEffect(() => {
     const getData = async () => {
       try {
         const response = await axios
-          .get(`http://www.omdbapi.com/?s=${searchMovie}&apikey=b63e6085`)
+          .get(
+            `http://www.omdbapi.com/?s=${searchMovie.trim()}&apikey=b63e6085`
+          )
           .then((response) => {
             setMovies(response.data.Search);
           })
@@ -77,7 +79,11 @@ const App = () => {
     getData();
   }, [searchMovie]);
 
- 
+  // Local Storage//
+
+  useEffect(() => {
+    localStorage.setItem("movies-app-data", JSON.stringify(favorites));
+  }, [favorites]);
 
   return (
     <div className="container" id="app-div">
@@ -101,7 +107,6 @@ const App = () => {
       </section>
 
       <section>
-        
         <div className="col-md-12 mt-4 d-flex align-item-center">
           <h1>
             Favorites{" "}
@@ -128,3 +133,8 @@ const App = () => {
 };
 
 export default App;
+
+// git checkout master
+// git branch main master -f
+// git checkout main
+// git push origin main -f
